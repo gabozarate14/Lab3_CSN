@@ -50,7 +50,9 @@ def test_basque():
                 graph.add_vertex(values[1])
                 graph.add_edge(values[0], values[1])
 
-        print(graph.closeness_centrality())
+        # print(graph.get_number_of_vertices())
+        # print(graph.get_number_of_edges())
+        print(graph.calculate_mean_closeness())
 
 if __name__ == "__main__":
     # main()

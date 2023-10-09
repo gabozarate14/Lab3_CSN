@@ -12,15 +12,27 @@ class Graph:
         if vertex1 == vertex2:
             return
         if vertex1 in self.adjacency_list:
-            self.adjacency_list[vertex1].append(vertex2)
+            if vertex2 not in self.adjacency_list[vertex1]:
+                self.adjacency_list[vertex1].append(vertex2)
+
         if vertex2 in self.adjacency_list:
-            self.adjacency_list[vertex2].append(vertex1)
+            if vertex1 not in self.adjacency_list[vertex2]:
+                self.adjacency_list[vertex2].append(vertex1)
 
     def __str__(self):
         result = ""
         for vertex, neighbors in self.adjacency_list.items():
             result += f"{vertex}: {', '.join(neighbors)}\n"
         return result
+
+    def get_number_of_vertices(self):
+        return len(self.adjacency_list)
+
+    def get_number_of_edges(self):
+        total_edges = 0
+        for vertex in self.adjacency_list:
+            total_edges += len(self.adjacency_list[vertex])
+        return total_edges // 2
 
     def bfs_distances(self, start_vertex):
         visited = {vertex: False for vertex in self.adjacency_list}
@@ -41,13 +53,23 @@ class Graph:
 
         return distances
 
-    def closeness_centrality(graph):
+    def calculate_mean_closeness(graph):
         total_closeness = 0
-        for vertex in graph.adjacency_list:
-            distances = graph.bfs_distances(vertex)
-            total_distance = sum(distances.values())
-            if total_distance != 0:
-                closeness = 1 / total_distance
-                total_closeness += closeness
+        num_connected_components = 0
 
-        return total_closeness / len(graph.adjacency_list)
+        visited = {vertex: False for vertex in graph.adjacency_list}
+
+        for vertex in graph.adjacency_list:
+            if not visited[vertex]:
+                distances = graph.bfs_distances(vertex)
+                total_distance = sum(distances.values())
+                if total_distance != 0:
+                    closeness = 1 / total_distance
+                    total_closeness += closeness
+                    num_connected_components += 1
+                visited[vertex] = True
+
+        if num_connected_components == 0:
+            return 0.0
+
+        return total_closeness / num_connected_components
