@@ -1,8 +1,26 @@
 from pathlib import Path
 from Graph import Graph
 import pandas as pd
+import random
 
 data_path = "data"
+
+def generate_binomial_graph(num_vertices, num_edges):
+    if num_edges > num_vertices * (num_vertices - 1) / 2:
+        raise ValueError("Too many edges for the given number of nodes.")
+
+    er_graph = Graph()
+    for i in range(num_vertices):
+        er_graph.add_vertex(i)
+
+    edge_count = 0
+    while edge_count < num_edges:
+        node1, node2 = random.sample(range(num_vertices), 2)
+        if (node1 != node2) and (node2 not in er_graph.adjacency_list[node1]):
+            er_graph.add_edge(node1, node2)
+            edge_count += 1
+
+    return er_graph
 
 
 def main():
@@ -49,9 +67,18 @@ def test_basque():
                 graph.add_vertex(values[1])
                 graph.add_edge(values[0], values[1])
 
-        # print(graph.get_number_of_vertices())
-        # print(graph.get_number_of_edges())
-        print(graph.calculate_mean_closeness())
+        print(graph.get_number_of_vertices())
+        print(graph.get_number_of_edges())
+        # print(graph.calculate_mean_closeness())
+
+        num_vertices_er = graph.get_number_of_vertices()
+        num_edges_er = graph.get_number_of_edges()
+        er_graph = generate_binomial_graph(num_vertices_er, num_edges_er)
+        print(er_graph.get_number_of_vertices())
+        print(er_graph.get_number_of_edges())
+        # print(er_graph.calculate_mean_closeness())
+
+
 
 if __name__ == "__main__":
     # main()
