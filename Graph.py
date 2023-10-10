@@ -37,9 +37,7 @@ class Graph:
     def bfs_distances(self, start_vertex):
         visited = {vertex: False for vertex in self.adjacency_list}
 
-        # The initial value should be inf but 0 will be used to avoid unconnected nodes
-        distances = {vertex: 0 for vertex in self.adjacency_list}
-
+        distances = {vertex: float("inf") for vertex in self.adjacency_list}
         queue = deque()
         queue.append(start_vertex)
         visited[start_vertex] = True
@@ -56,12 +54,14 @@ class Graph:
         return distances
 
     def calculate_mean_closeness(graph):
-        total_closeness = 0
+        n = graph.get_number_of_vertices()
+        c = 0
         for vertex in graph.adjacency_list:
             distances = graph.bfs_distances(vertex)
-            total_distance = sum(distances.values())
-            if total_distance != 0:
-                closeness = 1 / total_distance
-                total_closeness += closeness
+            ci = 0
+            for dij in distances.values():
+                if dij != 0:
+                    ci += (1/dij)
+            c += ci / (n-1)
 
-        return total_closeness / graph.get_number_of_vertices()
+        return c/n
