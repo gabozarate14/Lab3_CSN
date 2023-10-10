@@ -29,7 +29,6 @@ def main():
         table1 = pd.concat(table1_list, ignore_index=True)
         print(table1)
 
-
     else:
         print("Directory not found.")
 
