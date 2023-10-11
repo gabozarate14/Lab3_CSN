@@ -34,6 +34,21 @@ class Graph:
             total_edges += len(self.adjacency_list[vertex])
         return total_edges // 2
 
+    def get_vertices(self):
+        return self.adjacency_list.keys()
+
+    def copy(self):
+        new_graph = Graph()
+
+        for vertex in self.adjacency_list:
+            new_graph.add_vertex(vertex)
+
+        for vertex1, neighbors in self.adjacency_list.items():
+            for vertex2 in neighbors:
+                new_graph.add_edge(vertex1, vertex2)
+
+        return new_graph
+
     def bfs_distances(self, start_vertex):
         visited = {vertex: False for vertex in self.adjacency_list}
 
