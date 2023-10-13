@@ -1,5 +1,6 @@
 from collections import deque
 
+
 class Graph:
     def __init__(self):
         self.adjacency_list = {}
@@ -50,14 +51,13 @@ class Graph:
         return new_graph
 
     def bfs_distances(self, start_vertex):
-        visited = {vertex: False for vertex in self.adjacency_list}
 
+        visited = {vertex: False for vertex in self.adjacency_list}
         distances = {vertex: float("inf") for vertex in self.adjacency_list}
         queue = deque()
         queue.append(start_vertex)
         visited[start_vertex] = True
         distances[start_vertex] = 0
-
         while queue:
             current_vertex = queue.popleft()
             for neighbor in self.adjacency_list[current_vertex]:
@@ -76,7 +76,24 @@ class Graph:
             ci = 0
             for dij in distances.values():
                 if dij != 0:
-                    ci += (1/dij)
-            c += ci / (n-1)
+                    ci += (1 / dij)
+            c += (ci / (n - 1))
 
-        return c/n
+        return c / n
+
+    def estimate_closeness(graph, m_max):
+        n = graph.get_number_of_vertices()
+        c = 0
+        m = 0
+        for vertex in graph.adjacency_list:
+            if m == m_max:
+                break
+            distances = graph.bfs_distances(vertex)
+            ci = 0
+            for dij in distances.values():
+                if dij != 0:
+                    ci += (1 / dij)
+            c += (ci / (n - 1))
+            m += 1
+
+        return c

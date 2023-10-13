@@ -3,6 +3,7 @@ from Graph import Graph
 import pandas as pd
 import random
 import math
+import time
 
 data_path = "data"
 random.seed(1234)
@@ -105,25 +106,52 @@ def test_basque():
 
         n = graph.get_number_of_vertices()
         e = graph.get_number_of_edges()
-        print(n)
-        print(e)
         # print(graph.calculate_mean_closeness())
 
-        # er_graph = generate_binomial_graph(n, e)
-
-        er_graph = generate_binomial_graph(10, 5)
+        er_graph = generate_binomial_graph(n, e)
+        # er_graph = generate_binomial_graph(10, 5)
         print(er_graph.get_number_of_vertices())
         print(er_graph.get_number_of_edges())
-        # print(er_graph.calculate_mean_closeness())
 
-        qe = math.trunc(math.log(e) * e)
-        print(qe)
-        random_graph = generate_randomized_graph(er_graph, qe)
+        start_time = time.time()
+        c = er_graph.calculate_mean_closeness()
+        print( f"Real Closeness: {c}")
+        end_time1 = time.time()
 
-        print(random_graph.get_number_of_vertices())
-        print(random_graph.get_number_of_edges())
+        # Calculate the elapsed time
+        elapsed_time = end_time1 - start_time
+        print(f"Execution time: {elapsed_time:.6f} seconds")
+
+        m_max = math.trunc(n * 0.1)
+        sum_est_c = er_graph.estimate_closeness(m_max=m_max)
+        print(sum_est_c)
+
+
+        c_est = sum_est_c / m_max
+        print(f"Estimated Closeness: {c_est}")
+        end_time2 = time.time()
+        # Calculate the elapsed time
+        elapsed_time = end_time2 - end_time1
+        print(f"Execution time: {elapsed_time:.6f} seconds")
+
+        c_est_min = sum_est_c / n
+        c_est_max = c_est_min + 1 - m_max/n
+
+        print(f"Estimated Min Closeness: {c_est_min}")
+        print(f"Estimated Max Closeness: {c_est_max}")
+
+
+
+
+        # qe = math.trunc(math.log(e) * e)
+        # print(qe)
+        # random_graph = generate_randomized_graph(er_graph, qe)
+        #
+        # print(random_graph.get_number_of_vertices())
+        # print(random_graph.get_number_of_edges())
 
 
 if __name__ == "__main__":
     # main()
+
     test_basque()
