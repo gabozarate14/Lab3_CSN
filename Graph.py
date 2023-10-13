@@ -1,4 +1,5 @@
 from collections import deque
+import random
 
 
 class Graph:
@@ -81,11 +82,20 @@ class Graph:
 
         return c / n
 
-    def estimate_closeness(graph, m_max):
+    def estimate_closeness_sum(graph, m_max, sort="original"):
         n = graph.get_number_of_vertices()
         c = 0
         m = 0
-        for vertex in graph.adjacency_list:
+        adj_list = graph.adjacency_list
+
+        if sort == "random":
+            adj_list = sort_dict_randomly(adj_list)
+        elif sort == "inc_degree":
+            adj_list = sort_dict_by_list_length_ascending(adj_list)
+        elif sort == "dec_degree":
+            adj_list = sort_dict_by_list_length_descending(adj_list)
+
+        for vertex in adj_list:
             if m == m_max:
                 break
             distances = graph.bfs_distances(vertex)
@@ -97,3 +107,17 @@ class Graph:
             m += 1
 
         return c
+
+
+def sort_dict_randomly(input_dict):
+    random_items = list(input_dict.items())
+    random.shuffle(random_items)
+    return dict(random_items)
+
+
+def sort_dict_by_list_length_ascending(input_dict):
+    return dict(sorted(input_dict.items(), key=lambda item: len(item[1])))
+
+
+def sort_dict_by_list_length_descending(input_dict):
+    return dict(sorted(input_dict.items(), key=lambda item: len(item[1]), reverse=True))

@@ -88,6 +88,100 @@ def generate_randomized_graph(graph, qe):
     return random_graph
 
 
+def exp_execution_time(graph):
+    n = graph.get_number_of_vertices()
+    e = graph.get_number_of_edges()
+    er_graph = generate_binomial_graph(n, e)
+
+    # Execution time experimentation
+    start_time = time.time()
+    c = er_graph.calculate_mean_closeness()
+    print(f"Real Closeness: {c}")
+    end_time1 = time.time()
+
+    # Calculate the elapsed time
+    elapsed_time = end_time1 - start_time
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+
+    m_max = math.trunc(n * 0.1)
+    sum_est_c = er_graph.estimate_closeness_sum(m_max=m_max, sort="original")
+    print(sum_est_c)
+
+    c_est = sum_est_c / m_max
+    print(f"Estimated Closeness: {c_est}")
+    end_time2 = time.time()
+    # Calculate the elapsed time
+    elapsed_time = end_time2 - end_time1
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+
+    c_est_min = sum_est_c / n
+    c_est_max = c_est_min + 1 - m_max / n
+
+    print(f"Estimated Min Closeness: {c_est_min}")
+    print(f"Estimated Max Closeness: {c_est_max}")
+
+
+def exp_orderings(graph):
+
+    n = graph.get_number_of_vertices()
+    e = graph.get_number_of_edges()
+    er_graph = generate_binomial_graph(n, e)
+
+    print("=" * 50)
+    print("Ordering Experimentation Report")
+    print("=" * 50)
+    t1 = time.time()
+    c = er_graph.calculate_mean_closeness()
+    print(f"Real Closeness: {c}")
+    t2 = time.time()
+    elapsed_time = t2 - t1
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+    print("-" * 50)
+
+    m_max = math.trunc(n * 0.1)
+
+    sum_est_c = er_graph.estimate_closeness_sum(m_max=m_max, sort="original")
+    c_est = sum_est_c / m_max
+    print(f"Estimated Closeness Original ordering: {c_est}")
+    t3 = time.time()
+    elapsed_time = t3 - t2
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+    print("-" * 50)
+
+    results_random = []
+    times_random = []
+    for _ in range(11):
+        sum_est_c = er_graph.estimate_closeness_sum(m_max=m_max, sort="random")
+        c_est = sum_est_c / m_max
+        t4 = time.time()
+        elapsed_time = t4 - t3
+        results_random.append(c_est)
+        times_random.append(elapsed_time)
+        t3 = t4
+
+    c_est = sum(results_random)/len(results_random)
+    print(f"Estimated Closeness Random ordering: {c_est}")
+    elapsed_time = sum(times_random)/len(times_random)
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+    print("-" * 50)
+
+    sum_est_c = er_graph.estimate_closeness_sum(m_max=m_max, sort="inc_degree")
+    c_est = sum_est_c / m_max
+    print(f"Estimated Closeness Increasing Degree ordering: {c_est}")
+    t5 = time.time()
+    elapsed_time = t5 - t4
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+    print("-" * 50)
+
+    sum_est_c = er_graph.estimate_closeness_sum(m_max=m_max, sort="dec_degree")
+    c_est = sum_est_c / m_max
+    print(f"Estimated Closeness Decreasing Degree ordering: {c_est}")
+    t6 = time.time()
+    elapsed_time = t6 - t5
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+    print("-" * 50)
+
+
 def test_basque():
     with open('data/Basque_syntactic_dependency_network.txt', 'r', encoding='utf-8') as f:
         first_line = f.readline().strip()
@@ -110,43 +204,14 @@ def test_basque():
 
         er_graph = generate_binomial_graph(n, e)
         # er_graph = generate_binomial_graph(10, 5)
-        print(er_graph.get_number_of_vertices())
-        print(er_graph.get_number_of_edges())
 
-        start_time = time.time()
-        c = er_graph.calculate_mean_closeness()
-        print( f"Real Closeness: {c}")
-        end_time1 = time.time()
-
-        # Calculate the elapsed time
-        elapsed_time = end_time1 - start_time
-        print(f"Execution time: {elapsed_time:.6f} seconds")
-
-        m_max = math.trunc(n * 0.1)
-        sum_est_c = er_graph.estimate_closeness(m_max=m_max)
-        print(sum_est_c)
-
-
-        c_est = sum_est_c / m_max
-        print(f"Estimated Closeness: {c_est}")
-        end_time2 = time.time()
-        # Calculate the elapsed time
-        elapsed_time = end_time2 - end_time1
-        print(f"Execution time: {elapsed_time:.6f} seconds")
-
-        c_est_min = sum_est_c / n
-        c_est_max = c_est_min + 1 - m_max/n
-
-        print(f"Estimated Min Closeness: {c_est_min}")
-        print(f"Estimated Max Closeness: {c_est_max}")
-
-
-
+        # Experimentations
+        # exp_execution_time(graph)
+        exp_orderings(graph)
 
         # qe = math.trunc(math.log(e) * e)
         # print(qe)
         # random_graph = generate_randomized_graph(er_graph, qe)
-        #
         # print(random_graph.get_number_of_vertices())
         # print(random_graph.get_number_of_edges())
 
