@@ -82,6 +82,42 @@ class Graph:
 
         return c / n
 
+
+    def calculate_mean_closeness_optimized(graph):
+        n = graph.get_number_of_vertices()
+        c = 0
+        dd = {}
+        for vertex in graph.adjacency_list:
+            if len(graph.adjacency_list[vertex]) > 1:
+                distances = graph.bfs_distances(vertex)
+                dd[vertex] = distances
+
+            else:
+                continue
+
+            ci = 0
+            for dij in distances.values():
+                if dij != 0:
+                    ci += (1 / dij)
+            c += (ci / (n - 1))
+
+        for vertex in graph.adjacency_list:
+            if len(graph.adjacency_list[vertex]) == 1:
+                vertex2 = graph.adjacency_list[vertex][0]
+                distances = dd.get(vertex2, {})
+                distances = {key: value + 1 for key, value in distances.items()}
+
+            else:
+                continue
+
+            ci = 0
+            for dij in distances.values():
+                if dij != 0:
+                    ci += (1 / dij)
+            c += (ci / (n - 1))
+
+        return c / n
+
     def estimate_closeness_sum(graph, m_max, sort="original"):
         n = graph.get_number_of_vertices()
         c = 0
@@ -99,6 +135,57 @@ class Graph:
             if m == m_max:
                 break
             distances = graph.bfs_distances(vertex)
+            ci = 0
+            for dij in distances.values():
+                if dij != 0:
+                    ci += (1 / dij)
+            c += (ci / (n - 1))
+            m += 1
+
+        return c
+
+    def estimate_closeness_sum_optimized(graph, m_max, sort="original"):
+        n = graph.get_number_of_vertices()
+        c = 0
+        m = 0
+        dd = {}
+        adj_list = graph.adjacency_list
+
+        if sort == "random":
+            adj_list = sort_dict_randomly(adj_list)
+        elif sort == "inc_degree":
+            adj_list = sort_dict_by_list_length_ascending(adj_list)
+        elif sort == "dec_degree":
+            adj_list = sort_dict_by_list_length_descending(adj_list)
+
+        for vertex in adj_list:
+            if m == m_max:
+                break
+            if len(graph.adjacency_list[vertex]) > 1:
+                distances = graph.bfs_distances(vertex)
+                dd[vertex] = distances
+
+            else:
+                continue
+
+            ci = 0
+            for dij in distances.values():
+                if dij != 0:
+                    ci += (1 / dij)
+            c += (ci / (n - 1))
+            m += 1
+
+        for vertex in adj_list:
+            if m == m_max:
+                break
+
+            if len(graph.adjacency_list[vertex]) == 1:
+                vertex2 = graph.adjacency_list[vertex][0]
+                distances = dd.get(vertex2, {})
+                distances = {key: value + 1 for key, value in distances.items()}
+
+            else:
+                continue
             ci = 0
             for dij in distances.values():
                 if dij != 0:

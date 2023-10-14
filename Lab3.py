@@ -27,34 +27,6 @@ def generate_binomial_graph(num_vertices, num_edges):
     return er_graph
 
 
-def main():
-    folder = Path(data_path)
-    if folder.is_dir():
-
-        table1_list = []
-
-        for file in folder.iterdir():
-            if file.is_file():
-                language = file.name.split('_')[0]
-                with open(file, 'r', encoding='utf-8') as f:
-                    first_line = f.readline().strip()
-                    numbers = first_line.split()
-                    vertices_num = int(numbers[0])
-                    edges_num = int(numbers[1])
-                    mean_degree = 2 * edges_num / vertices_num
-                    delta = mean_degree / (vertices_num - 1)
-                    df = pd.DataFrame(
-                        {"Language": [language], "N": [vertices_num], "E": [edges_num], "k": [mean_degree],
-                         "delta": [delta]})
-                    table1_list.append(df)
-
-        table1 = pd.concat(table1_list, ignore_index=True)
-        print(table1)
-
-    else:
-        print("Directory not found.")
-
-
 def generate_randomized_graph(graph, qe):
     random_graph = graph.copy()
     vertices = random_graph.get_vertices()
@@ -122,7 +94,6 @@ def exp_execution_time(graph):
 
 
 def exp_orderings(graph):
-
     n = graph.get_number_of_vertices()
     e = graph.get_number_of_edges()
     er_graph = generate_binomial_graph(n, e)
@@ -159,9 +130,9 @@ def exp_orderings(graph):
         times_random.append(elapsed_time)
         t3 = t4
 
-    c_est = sum(results_random)/len(results_random)
+    c_est = sum(results_random) / len(results_random)
     print(f"Estimated Closeness Random ordering: {c_est}")
-    elapsed_time = sum(times_random)/len(times_random)
+    elapsed_time = sum(times_random) / len(times_random)
     print(f"Execution time: {elapsed_time:.6f} seconds")
     print("-" * 50)
 
@@ -182,12 +153,36 @@ def exp_orderings(graph):
     print("-" * 50)
 
 
+def monte_carlo_method(original_graph, original_closeness, t, exp_type):
+
+    n = original_graph.get_number_of_vertices()
+    e = original_graph.get_number_of_edges()
+    m_max = math.trunc(n * 0.1)
+    qe = math.trunc(math.log(e) * e)
+
+    print("Original closeness: ", original_closeness)
+    counter = 0
+    print(f"Monte Carlo method - {exp_type}")
+
+    for i in range(t + 1):
+        if exp_type == "ER":
+            random_graph = generate_binomial_graph(n, e)
+        elif exp_type == "SWI":
+            random_graph = generate_randomized_graph(original_graph, qe)
+        print("Iteration ", i)
+
+        sum_est_c = random_graph.estimate_closeness_sum(m_max=m_max, sort="random")
+        min_random_closeness = sum_est_c / n
+        print("Min random closeness: ", min_random_closeness)
+
+        if min_random_closeness >= original_closeness:
+            counter += 1
+
+    return counter / t
+
 def test_basque():
     with open('data/Basque_syntactic_dependency_network.txt', 'r', encoding='utf-8') as f:
         first_line = f.readline().strip()
-        numbers = first_line.split()
-        # vertices_num = int(numbers[0])
-        # edges_num = int(numbers[1])
 
         graph = Graph()
         # Read the graph
@@ -201,13 +196,46 @@ def test_basque():
         n = graph.get_number_of_vertices()
         e = graph.get_number_of_edges()
         # print(graph.calculate_mean_closeness())
+        # print(graph.calculate_mean_closeness_OPTIMIZED())
 
-        er_graph = generate_binomial_graph(n, e)
+        # t1 = time.time()
+        # print(f"Real Closeness: {graph.calculate_mean_closeness()}")
+        # t2 = time.time()
+        # elapsed_time = t2 - t1
+        # print(f"Execution time: {elapsed_time:.6f} seconds")
+
+        # t1 = time.time()
+        # print(f"Real Closeness Optimized: {graph.calculate_mean_closeness_optimized()}")
+        # t2 = time.time()
+        # elapsed_time = t2 - t1
+        # print(f"Execution time: {elapsed_time:.6f} seconds")
+
+        ######
+
+        t1 = time.time()
+        m_max = math.trunc(n * 0.1)
+        sum_est_c = graph.estimate_closeness_sum(m_max=m_max, sort="original")
+        c_est = sum_est_c / m_max
+        print(f"Estimate Closeness Sum: ", c_est)
+        t2 = time.time()
+        elapsed_time = t2 - t1
+        print(f"Execution time: {elapsed_time:.6f} seconds")
+
+        t1 = time.time()
+        m_max = math.trunc(n * 0.1)
+        sum_est_c = graph.estimate_closeness_sum_optimized(m_max=m_max, sort="random")
+        c_est = sum_est_c / m_max
+        print(f"Estimate Closeness Sum Optimized: ", c_est)
+        t2 = time.time()
+        elapsed_time = t2 - t1
+        print(f"Execution time: {elapsed_time:.6f} seconds")
+
+        # er_graph = generate_binomial_graph(n, e)
         # er_graph = generate_binomial_graph(10, 5)
 
         # Experimentations
         # exp_execution_time(graph)
-        exp_orderings(graph)
+        # exp_orderings(graph)
 
         # qe = math.trunc(math.log(e) * e)
         # print(qe)
@@ -215,8 +243,76 @@ def test_basque():
         # print(random_graph.get_number_of_vertices())
         # print(random_graph.get_number_of_edges())
 
+        # T = 50
+        # p_value = monte_carlo_method(graph, n, e, T)
+        # print("p-value is; ", p_value)
+
+def main():
+    folder = Path(data_path)
+    if folder.is_dir():
+
+        table1_list = []
+        table2_list = []
+        for file in folder.iterdir():
+            if file.is_file():
+                language = file.name.split('_')[0]
+                print("=" * 50)
+                print(language)
+                print("=" * 50)
+                with open(file, 'r', encoding='utf-8') as f:
+                    first_line = f.readline().strip()
+                    numbers = first_line.split()
+                    # ignore the shown nodes and edges because they change when self loops are deleted
+                    # vertices_num = int(numbers[0])
+                    # edges_num = int(numbers[1])
+                    graph = Graph()
+                    # Read the graph
+                    for line in f:
+                        values = line.strip().split()
+                        if len(values) == 2:
+                            graph.add_vertex(values[0])
+                            graph.add_vertex(values[1])
+                            graph.add_edge(values[0], values[1])
+
+                    n = graph.get_number_of_vertices()
+                    e = graph.get_number_of_edges()
+
+                    # Calculate table 1
+                    mean_degree = 2 * e / n
+                    delta = mean_degree / (n - 1)
+                    df1 = pd.DataFrame(
+                        {"Language": [language], "N": [n], "E": [e], "k": [mean_degree],
+                         "delta": [delta]})
+                    table1_list.append(df1)
+
+                    # Calculate table 2 (p-values)
+                    m_max = math.trunc(n * 0.1)
+                    t = 50
+                    sum_est_c = graph.estimate_closeness_sum_optimized(m_max=m_max, sort="random")
+                    c = sum_est_c / m_max
+                    pv_bi = monte_carlo_method(graph, c, t, "ER")
+                    pv_switch = monte_carlo_method(graph, c, t, "SWI")
+
+                    df2 = pd.DataFrame(
+                        {"Language": [language], "Closeness": [c], "p-value (binomial)": [pv_bi],
+                         "p-value (switching)": [pv_switch]})
+                    table2_list.append(df2)
+    else:
+        print("Directory not found.")
+
+    table1 = pd.concat(table1_list, ignore_index=True)
+    print("=" * 50)
+    print("Table 1")
+    print("=" * 50)
+    print(table1)
+
+    table2 = pd.concat(table2_list, ignore_index=True)
+    print("=" * 50)
+    print("Table 2")
+    print("=" * 50)
+    print(table2)
+
 
 if __name__ == "__main__":
-    # main()
-
-    test_basque()
+    main()
+    # test_basque()
