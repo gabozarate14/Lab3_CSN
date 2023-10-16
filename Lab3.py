@@ -96,7 +96,8 @@ def exp_execution_time(graph):
 def exp_orderings(graph):
     n = graph.get_number_of_vertices()
     e = graph.get_number_of_edges()
-    er_graph = generate_binomial_graph(n, e)
+    # er_graph = generate_binomial_graph(n, e)
+    er_graph = graph
 
     print("=" * 50)
     print("Ordering Experimentation Report")
@@ -180,6 +181,32 @@ def monte_carlo_method(original_graph, original_closeness, t, exp_type):
 
     return counter / t
 
+def exp_optimization(graph):
+    t1 = time.time()
+    print(f"Real Closeness: {graph.calculate_mean_closeness()}")
+    t2 = time.time()
+    elapsed_time = t2 - t1
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+
+    t1 = time.time()
+    print(f"Real Closeness Optimized: {graph.calculate_mean_closeness_optimized()}")
+    t2 = time.time()
+    elapsed_time = t2 - t1
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+
+def exp_generate_hnull_graphs(graph):
+    n = graph.get_number_of_vertices()
+    e = graph.get_number_of_edges()
+
+    m_max = math.trunc(n * 0.1)
+    qe = math.trunc(math.log(e) * e)
+
+    er_graph = generate_binomial_graph(n, e)
+    print(er_graph.adjacency_list)
+    random_graph = generate_randomized_graph(graph, qe)
+    print(random_graph.adjacency_list)
+
+
 def test_basque():
     with open('data/Basque_syntactic_dependency_network.txt', 'r', encoding='utf-8') as f:
         first_line = f.readline().strip()
@@ -193,55 +220,11 @@ def test_basque():
                 graph.add_vertex(values[1])
                 graph.add_edge(values[0], values[1])
 
-        n = graph.get_number_of_vertices()
-        e = graph.get_number_of_edges()
-        # print(graph.calculate_mean_closeness())
-        # print(graph.calculate_mean_closeness_OPTIMIZED())
-
-        # t1 = time.time()
-        # print(f"Real Closeness: {graph.calculate_mean_closeness()}")
-        # t2 = time.time()
-        # elapsed_time = t2 - t1
-        # print(f"Execution time: {elapsed_time:.6f} seconds")
-
-        # t1 = time.time()
-        # print(f"Real Closeness Optimized: {graph.calculate_mean_closeness_optimized()}")
-        # t2 = time.time()
-        # elapsed_time = t2 - t1
-        # print(f"Execution time: {elapsed_time:.6f} seconds")
-
-        ######
-
-        t1 = time.time()
-        m_max = math.trunc(n * 0.1)
-        sum_est_c = graph.estimate_closeness_sum(m_max=m_max, sort="original")
-        c_est = sum_est_c / m_max
-        print(f"Estimate Closeness Sum: ", c_est)
-        t2 = time.time()
-        elapsed_time = t2 - t1
-        print(f"Execution time: {elapsed_time:.6f} seconds")
-
-        t1 = time.time()
-        m_max = math.trunc(n * 0.1)
-        sum_est_c = graph.estimate_closeness_sum_optimized(m_max=m_max, sort="random")
-        c_est = sum_est_c / m_max
-        print(f"Estimate Closeness Sum Optimized: ", c_est)
-        t2 = time.time()
-        elapsed_time = t2 - t1
-        print(f"Execution time: {elapsed_time:.6f} seconds")
-
-        # er_graph = generate_binomial_graph(n, e)
-        # er_graph = generate_binomial_graph(10, 5)
-
         # Experimentations
-        # exp_execution_time(graph)
-        # exp_orderings(graph)
-
-        # qe = math.trunc(math.log(e) * e)
-        # print(qe)
-        # random_graph = generate_randomized_graph(er_graph, qe)
-        # print(random_graph.get_number_of_vertices())
-        # print(random_graph.get_number_of_edges())
+        exp_generate_hnull_graphs(graph)
+        exp_optimization(graph)
+        exp_execution_time(graph)
+        exp_orderings(graph)
 
         # T = 50
         # p_value = monte_carlo_method(graph, n, e, T)
@@ -314,5 +297,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    # test_basque()
+    # main()
+    test_basque()
