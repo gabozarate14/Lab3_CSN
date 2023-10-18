@@ -91,7 +91,6 @@ class Graph:
             if len(graph.adjacency_list[vertex]) > 1:
                 distances = graph.bfs_distances(vertex)
                 dd[vertex] = distances
-
             else:
                 continue
 
@@ -122,7 +121,7 @@ class Graph:
         n = graph.get_number_of_vertices()
         c = 0
         m = 0
-        adj_list = graph.adjacency_list
+        adj_list = graph.adjacency_list.copy()
 
         if sort == "random":
             adj_list = sort_dict_randomly(adj_list)

@@ -1,0 +1,54 @@
+==================================================
+Ordering Experimentation Report
+==================================================
+Iteration  0
+ m max achieved: c_rand_est: 0.2924797651910109 , c_og_est: 0.28279979542541134
+Iteration  1
+ m max achieved: c_rand_est: 0.29245856017069427 , c_og_est: 0.28279979542541134
+Iteration  2
+ m max achieved: c_rand_est: 0.29435180046866666 , c_og_est: 0.28279979542541134
+Iteration  3
+ m max achieved: c_rand_est: 0.293782149201528 , c_og_est: 0.28279979542541134
+Iteration  4
+ m max achieved: c_rand_est: 0.29530404673185645 , c_og_est: 0.28279979542541134
+SWI p-value is;  1.0
+Execution time of original: 154.398103 seconds
+--------------------------------------------------
+Iteration  0
+ m max achieved: c_rand_est: 0.27430639201279544 , c_og_est: 0.27202365753031266
+Iteration  1
+ m max achieved: c_rand_est: 0.2741037421888288 , c_og_est: 0.27202365753031266
+Iteration  2
+ m max achieved: c_rand_est: 0.2743998624382429 , c_og_est: 0.27202365753031266
+Iteration  3
+ m max achieved: c_rand_est: 0.27268441213750966 , c_og_est: 0.27202365753031266
+Iteration  4
+ m max achieved: c_rand_est: 0.2729052144466881 , c_og_est: 0.27202365753031266
+SWI p-value is;  1.0
+Execution time of random: 156.507783 seconds
+--------------------------------------------------
+Iteration  0
+ m max achieved: c_rand_est: 0.25006037896403527 , c_og_est: 0.2376980470983926
+Iteration  1
+ m max achieved: c_rand_est: 0.24662659602404122 , c_og_est: 0.2376980470983926
+Iteration  2
+ m max achieved: c_rand_est: 0.2502499642876668 , c_og_est: 0.2376980470983926
+Iteration  3
+ m max achieved: c_rand_est: 0.24843429022777377 , c_og_est: 0.2376980470983926
+Iteration  4
+ m max achieved: c_rand_est: 0.24856906400791792 , c_og_est: 0.2376980470983926
+SWI p-value is;  1.0
+Execution time of inc_degree: 157.397513 seconds
+--------------------------------------------------
+Iteration  0
+ m max achieved: c_rand_est: 0.33122158707541366 , c_og_est: 0.3231248598310028
+Iteration  1
+ m max achieved: c_rand_est: 0.33028151146984797 , c_og_est: 0.3231248598310028
+Iteration  2
+ m max achieved: c_rand_est: 0.33072452386134266 , c_og_est: 0.3231248598310028
+Iteration  3
+ m max achieved: c_rand_est: 0.3301141589450214 , c_og_est: 0.3231248598310028
+Iteration  4
+ m max achieved: c_rand_est: 0.33067727366074706 , c_og_est: 0.3231248598310028
+SWI p-value is;  1.0
+Execution time of dec_degree: 157.537205 seconds

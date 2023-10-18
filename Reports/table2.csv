@@ -1,0 +1,11 @@
+Language,Closeness,p-value (binomial),p-value (switching)
+Arabic,0.325933,0,1
+Basque,0.283205,0,1
+Catalan,0.355326,0,""
+Chinese,0.344198,0,""
+Czech,0.320621,0,""
+English,0.359276,0,""
+Greek,0.314997,0,1
+Hungarian,0.300205,0,""
+Italian,0.338032,0,""
+Turkish,0.371756,0,""
