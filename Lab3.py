@@ -103,7 +103,7 @@ def exp_orderings(graph):
     print("Ordering Experimentation Report")
     print("=" * 50)
     t1 = time.time()
-    c = er_graph.calculate_mean_closeness()
+    c = er_graph.calculate_mean_closeness_optimized()
     print(f"Real Closeness: {c}")
     t2 = time.time()
     elapsed_time = t2 - t1
@@ -112,7 +112,7 @@ def exp_orderings(graph):
 
     m_max = math.trunc(n * 0.1)
 
-    sum_est_c = er_graph.estimate_closeness_sum(m_max=m_max, sort="original")
+    sum_est_c = er_graph.estimate_closeness_sum_optimized(m_max=m_max, sort="original")
     c_est = sum_est_c / m_max
     print(f"Estimated Closeness Original ordering: {c_est}")
     t3 = time.time()
@@ -123,7 +123,7 @@ def exp_orderings(graph):
     results_random = []
     times_random = []
     for _ in range(11):
-        sum_est_c = er_graph.estimate_closeness_sum(m_max=m_max, sort="random")
+        sum_est_c = er_graph.estimate_closeness_sum_optimized(m_max=m_max, sort="random")
         c_est = sum_est_c / m_max
         t4 = time.time()
         elapsed_time = t4 - t3
@@ -137,7 +137,7 @@ def exp_orderings(graph):
     print(f"Execution time: {elapsed_time:.6f} seconds")
     print("-" * 50)
 
-    sum_est_c = er_graph.estimate_closeness_sum(m_max=m_max, sort="inc_degree")
+    sum_est_c = er_graph.estimate_closeness_sum_optimized(m_max=m_max, sort="inc_degree")
     c_est = sum_est_c / m_max
     print(f"Estimated Closeness Increasing Degree ordering: {c_est}")
     t5 = time.time()
@@ -145,7 +145,7 @@ def exp_orderings(graph):
     print(f"Execution time: {elapsed_time:.6f} seconds")
     print("-" * 50)
 
-    sum_est_c = er_graph.estimate_closeness_sum(m_max=m_max, sort="dec_degree")
+    sum_est_c = er_graph.estimate_closeness_sum_optimized(m_max=m_max, sort="dec_degree")
     c_est = sum_est_c / m_max
     print(f"Estimated Closeness Decreasing Degree ordering: {c_est}")
     t6 = time.time()
@@ -155,7 +155,6 @@ def exp_orderings(graph):
 
 
 def monte_carlo_method(original_graph, original_closeness, t, exp_type):
-
     n = original_graph.get_number_of_vertices()
     e = original_graph.get_number_of_edges()
     m_max = math.trunc(n * 0.1)
@@ -165,6 +164,7 @@ def monte_carlo_method(original_graph, original_closeness, t, exp_type):
     counter = 0
     print(f"Monte Carlo method - {exp_type}")
 
+    sum_c = []
     for i in range(t + 1):
         if exp_type == "ER":
             random_graph = generate_binomial_graph(n, e)
@@ -173,13 +173,17 @@ def monte_carlo_method(original_graph, original_closeness, t, exp_type):
         print("Iteration ", i)
 
         sum_est_c = random_graph.estimate_closeness_sum(m_max=m_max, sort="random")
-        min_random_closeness = sum_est_c / n
+        # min_random_closeness = sum_est_c / n
+        min_random_closeness = sum_est_c / m_max
         print("Min random closeness: ", min_random_closeness)
-
+        sum_c.append(min_random_closeness)
         if min_random_closeness >= original_closeness:
             counter += 1
 
-    return counter / t
+    avg_c = sum(sum_c) / len(sum_c)
+
+    return counter / t, avg_c
+
 
 def exp_optimization(graph):
     t1 = time.time()
@@ -194,6 +198,7 @@ def exp_optimization(graph):
     elapsed_time = t2 - t1
     print(f"Execution time: {elapsed_time:.6f} seconds")
 
+
 def exp_generate_hnull_graphs(graph):
     n = graph.get_number_of_vertices()
     e = graph.get_number_of_edges()
@@ -207,8 +212,23 @@ def exp_generate_hnull_graphs(graph):
     print(random_graph.adjacency_list)
 
 
+def exp_montecarlo(graph):
+    n = graph.get_number_of_vertices()
+    e = graph.get_number_of_edges()
+    m_max = math.trunc(n * 0.1)
+    sum_est_c = graph.estimate_closeness_sum_optimized(m_max=m_max, sort="random")
+    c = sum_est_c / m_max
+    t = 50
+    pval, avg = monte_carlo_method(graph, c, t, "ER")
+    print("=" * 50)
+    print(f"Final p-value: {pval}, Avr. C: {avg}")
+    pval, avg = monte_carlo_method(graph, c, t, "SWI")
+    print("=" * 50)
+    print(f"Final p-value: {pval}, Avr. C: {avg}")
+
+
 def test_basque():
-    with open('data/Basque_syntactic_dependency_network.txt', 'r', encoding='utf-8') as f:
+    with open('data/Greek_syntactic_dependency_network.txt', 'r', encoding='utf-8') as f:
         first_line = f.readline().strip()
 
         graph = Graph()
@@ -221,14 +241,15 @@ def test_basque():
                 graph.add_edge(values[0], values[1])
 
         # Experimentations
-        exp_generate_hnull_graphs(graph)
-        exp_optimization(graph)
-        exp_execution_time(graph)
-        exp_orderings(graph)
-
+        # exp_generate_hnull_graphs(graph)
+        # exp_optimization(graph)
+        # exp_execution_time(graph)
+        # exp_orderings(graph)
+        exp_montecarlo(graph)
         # T = 50
         # p_value = monte_carlo_method(graph, n, e, T)
         # print("p-value is; ", p_value)
+
 
 def main():
     folder = Path(data_path)
@@ -273,12 +294,12 @@ def main():
                     t = 50
                     sum_est_c = graph.estimate_closeness_sum_optimized(m_max=m_max, sort="random")
                     c = sum_est_c / m_max
-                    pv_bi = monte_carlo_method(graph, c, t, "ER")
-                    pv_switch = monte_carlo_method(graph, c, t, "SWI")
-
+                    pv_bi, avg_bi = monte_carlo_method(graph, c, t, "ER")
+                    pv_switch, avg_swi = monte_carlo_method(graph, c, t, "SWI")
                     df2 = pd.DataFrame(
                         {"Language": [language], "Closeness": [c], "p-value (binomial)": [pv_bi],
-                         "p-value (switching)": [pv_switch]})
+                         "p-value (switching)": [pv_switch] , " Avg C (binomial)": [avg_bi],
+                         "Avg C (switching)": [avg_swi]})
                     table2_list.append(df2)
     else:
         print("Directory not found.")
@@ -297,5 +318,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-    test_basque()
+    main()
+    # test_basque()
