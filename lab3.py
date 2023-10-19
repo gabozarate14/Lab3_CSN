@@ -9,7 +9,6 @@ from experiments import *
 data_path = "data"
 random.seed(1234)
 
-
 def generate_binomial_graph(num_vertices, num_edges):
     if num_edges > num_vertices * (num_vertices - 1) / 2:
         raise ValueError("Too many edges for the given number of nodes.")
@@ -61,38 +60,6 @@ def generate_randomized_graph(graph, qe):
     return random_graph
 
 
-def monte_carlo_method(original_graph, original_closeness, t, exp_type):
-    tolerated_difference = 0.013
-    n = original_graph.get_number_of_vertices()
-    e = original_graph.get_number_of_edges()
-    m_max = math.trunc(n * 0.1)
-    qe = math.trunc(math.log(e) * e)
-
-    print("Original closeness: ", original_closeness)
-    counter = 0
-    print(f"Monte Carlo method - {exp_type}")
-
-    sum_c = []
-    for i in range(t + 1):
-        if exp_type == "ER":
-            random_graph = generate_binomial_graph(n, e)
-        elif exp_type == "SWI":
-            random_graph = generate_randomized_graph(original_graph, qe)
-        print("Iteration ", i)
-
-        sum_est_c = random_graph.estimate_closeness_sum(m_max=m_max, sort="random")
-        # min_random_closeness = sum_est_c / n
-        random_closeness = sum_est_c / m_max
-        print("Min random closeness: ", random_closeness)
-        sum_c.append(random_closeness)
-        if abs(random_closeness - original_closeness) <= tolerated_difference:
-            counter += 1
-
-    avg_c = sum(sum_c) / len(sum_c)
-
-    return counter / t, avg_c
-
-
 def sort_adj_list(adj_list_dict, sort):
     if sort == "original":
         dict_list = adj_list_dict
@@ -136,6 +103,7 @@ def monte_carlo_estimation(original_graph, t, m_max, exp_type, sort="original", 
                 break
             m_count = (m_count * 2) if (m_count * 2 < m_max) else m_max
 
+    print(c_lang[-1])
     print(f"Null model: {exp_type}")
 
     for i in range(t):
@@ -195,49 +163,15 @@ def monte_carlo_estimation(original_graph, t, m_max, exp_type, sort="original", 
     return counter / t, c_og_est, c_lang
 
 
-def test_basque():
-    with open('data/Greek_syntactic_dependency_network.txt', 'r', encoding='utf-8') as f:
-        first_line = f.readline().strip()
-
-        graph = Graph()
-        # Read the graph
-        for line in f:
-            values = line.strip().split()
-            if len(values) == 2:
-                graph.add_vertex(values[0])
-                graph.add_vertex(values[1])
-                graph.add_edge(values[0], values[1])
-
-        n = graph.get_number_of_vertices()
-        e = graph.get_number_of_edges()
-        # Experimentations
-        # exp_generate_hnull_graphs(graph)
-        # exp_optimization(graph)
-        # exp_execution_time(graph)
-        # exp_montecarlo(graph)
-        # p_value = monte_carlo_method(graph, n, e, T)
-        # print("p-value is; ", p_value)
-        # estimate_margin(graph)
-        t = 10
-        m_max = math.trunc(n * 0.1)
-        # p_val = monte_carlo_estimation(graph, t, m_max, "ER", "original")
-        # print("ER p-value is; ", p_val)
-        p_val, c_est = monte_carlo_estimation(graph, t, m_max, "SWI", "random")
-        print(f"SWI: p-value is: {p_val}, c est: {c_est}")
-        # exp_orderings(graph)
-
 
 def main():
     folder = Path(data_path)
     if folder.is_dir():
-
         table1_list = []
         table2_list = []
         for file in folder.iterdir():
             if file.is_file():
                 language = file.name.split('_')[0]
-                if language not in ['Italian']:
-                    continue
                 print("=" * 50)
                 print(language)
                 print("=" * 50)
@@ -266,10 +200,9 @@ def main():
 
                     # Calculate table 2 (p-values)
                     m_max = math.trunc(n * 0.1)
-                    t = 10
+                    t = 20
                     pv_switch, c, c_lang = monte_carlo_estimation(graph, t, m_max, "SWI", "random", None)
-                    # pv_bi, _, _ = monte_carlo_estimation(graph, t, m_max, "ER", "random", c_lang)
-                    pv_bi = 0
+                    pv_bi, _, _ = monte_carlo_estimation(graph, t, m_max, "ER", "random", c_lang)
 
                     df2 = pd.DataFrame(
                         {"Language": [language], "Closeness": [c], "p-value (binomial)": [pv_bi],
@@ -294,44 +227,6 @@ def main():
     print(table2)
 
 
-def exp_small_graphs():
-    folder = Path(data_path)
-    if folder.is_dir():
-        table2_list = []
-        real_c = {"Basque": 0.269735556,
-                  "Greek": 0.314726435,
-                  "Italian": 0.327825244}
-
-        for file in folder.iterdir():
-            if file.is_file():
-                language = file.name.split('_')[0]
-                if language not in ['Basque', 'Greek', 'Italian']:
-                    continue
-                print("=" * 50)
-                print(language)
-                print("=" * 50)
-                with open(file, 'r', encoding='utf-8') as f:
-                    first_line = f.readline().strip()
-                    numbers = first_line.split()
-                    graph = Graph()
-                    # Read the graph
-                    for line in f:
-                        values = line.strip().split()
-                        if len(values) == 2:
-                            graph.add_vertex(values[0])
-                            graph.add_vertex(values[1])
-                            graph.add_edge(values[0], values[1])
-
-                    n = graph.get_number_of_vertices()
-                    e = graph.get_number_of_edges()
-                    # c = graph.calculate_mean_closeness_optimized()
-                    c = real_c[language]
-                    estimate_margin(graph, c)
-                    df2 = pd.DataFrame(
-                        {"Language": [language], "Closeness": [c]})
-                    table2_list.append(df2)
-    else:
-        print("Directory not found.")
 
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
@@ -344,5 +239,3 @@ def exp_small_graphs():
 
 if __name__ == "__main__":
     main()
-    # test_basque()
-    # exp_small_graphs()
